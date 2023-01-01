@@ -5,7 +5,7 @@ services:
     build: .
     ports:
       - "8080:8080"
-    command: ["ChatGPT-API-server", "8080", "<API_KEY>", "-listen", "0.0.0.0"]
+    command: ["ChatGPT-API-server", "8080", "bzsy", "-listen", "0.0.0.0"]
     networks:
       - chatgpt-api-server_default
     healthcheck:
@@ -13,6 +13,10 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    environment:
+      - "DATABASE_PATH=/data"
+    volumes:
+      - /root/ChatGPT-Hackers/data:/data
 
 networks:
   chatgpt-api-server_default:

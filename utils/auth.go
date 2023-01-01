@@ -8,16 +8,29 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var dataSoucreName = ""
+
+func getDataSourcePath() string {
+	// Get the data source name
+	dataSourcePath := os.Getenv("DATABASE_PATH")
+	if dataSourcePath == "" {
+		dataSourcePath = "./Data"
+	}
+	return dataSourcePath
+}
+
 func DatabaseCreate() error {
+	dataSourcePath := getDataSourcePath()
 	// Create Data directory if it doesn't already exist
-	if _, err := os.Stat("./Data"); os.IsNotExist(err) {
-		err = os.Mkdir("./Data", 0755)
+	if _, err := os.Stat(dataSourcePath); os.IsNotExist(err) {
+		err = os.Mkdir(dataSourcePath, 0755)
 		if err != nil {
 			return fmt.Errorf("error creating Data directory: %v", err)
 		}
 	}
+	dataSoucreName = dataSourcePath + "/auth.db"
 	// Open a connection to the SQLite database
-	db, err := sql.Open("sqlite3", "./Data/auth.db")
+	db, err := sql.Open("sqlite3", dataSoucreName)
 	if err != nil {
 		return fmt.Errorf("error opening database: %v", err)
 	}
@@ -34,7 +47,7 @@ func DatabaseCreate() error {
 
 func DatabaseInsert(user_id string, token string) error {
 	// Open a connection to the SQLite database
-	db, err := sql.Open("sqlite3", "./Data/auth.db")
+	db, err := sql.Open("sqlite3", dataSoucreName)
 	if err != nil {
 		return fmt.Errorf("error opening database: %v", err)
 	}
@@ -51,7 +64,7 @@ func DatabaseInsert(user_id string, token string) error {
 
 func DatabaseDelete(user_id string) error {
 	// Open a connection to the SQLite database
-	db, err := sql.Open("sqlite3", "./Data/auth.db")
+	db, err := sql.Open("sqlite3", dataSoucreName)
 	if err != nil {
 		return fmt.Errorf("error opening database: %v", err)
 	}
@@ -73,7 +86,7 @@ type User struct {
 
 func DatabaseSelectAll() ([]User, error) {
 	// Open a connection to the SQLite database
-	db, err := sql.Open("sqlite3", "./Data/auth.db")
+	db, err := sql.Open("sqlite3", dataSoucreName)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %v", err)
 	}
@@ -112,7 +125,7 @@ func VerifyToken(token string) (bool, error) {
 		return true, nil
 	}
 	// Open a connection to the SQLite database
-	db, err := sql.Open("sqlite3", "./Data/auth.db")
+	db, err := sql.Open("sqlite3", dataSoucreName)
 	if err != nil {
 		return false, fmt.Errorf("error opening database: %v", err)
 	}
